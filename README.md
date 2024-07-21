@@ -8,3 +8,6 @@ Download the latest release, run the .jar file, setup your conditions for the si
 
 ## Recommendation
 It is highly recommended to use jre/jdk 21 because other versions may or may not work for the program.
+
+## Can be used for
+Finding the fastest endfight anyone can get using oneshot on a seed
