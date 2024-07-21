@@ -1,0 +1,31 @@
+plugins {
+    id 'application'
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://jitpack.io"
+    }
+}
+
+dependencies {
+    implementation 'com.github.KaptainWutax:MCUtils:1bc39b7c89498c8a045c6944f18465238f9bb4cc'
+    implementation 'com.github.KaptainWutax:BiomeUtils:166f1757be3e1e036f0b25f9c063df3f863a1c49'
+    implementation 'com.github.KaptainWutax:TerrainUtils:605c46b94a5126df55bd347b82f277af443909c9'
+
+    implementation 'com.google.guava:guava:30.1.1-jre'
+    implementation 'com.formdev:flatlaf:3.0'
+}
+
+application {
+    mainClass = 'Dragon.Sim.main'
+}
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'Dragon.Sim.main'
+        )
+    }
+}

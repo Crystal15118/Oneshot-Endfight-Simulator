@@ -1,0 +1,2 @@
+rootProject.name = 'Dragon Sim'
+include('app')
