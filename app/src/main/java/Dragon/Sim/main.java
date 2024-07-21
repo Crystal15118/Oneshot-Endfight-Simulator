@@ -10,8 +10,6 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,8 +19,6 @@ public class main {
     private static JTextArea outputArea;
     private static JTextField filePathField, numSimsField;
     private static JTextArea seedArea;
-    private static JToggleButton toggleThemeButton;
-    private static boolean darkMode = false;
     private static volatile boolean running = false;
 
     public static void main(String[] args) {
@@ -45,8 +41,6 @@ public class main {
             root.add(outputScrollPane, BorderLayout.CENTER);
 
             setUIFont(new Font("Arial", Font.PLAIN, 14));
-
-            applyTheme();
 
             frame.setVisible(true);
         });
@@ -223,7 +217,7 @@ public class main {
             }
         }
     }
-
+    
     private static void setUIFont(Font font) {
         UIManager.put("Label.font", font);
         UIManager.put("Button.font", font);
