@@ -118,13 +118,6 @@ public class main {
         gbc.gridwidth = 1;
         inputPanel.add(stopButton, gbc);
 
-        toggleThemeButton = new JToggleButton("Toggle Dark/Light Mode");
-        toggleThemeButton.addActionListener(e -> toggleTheme());
-        gbc.gridx = 0;
-        gbc.gridy = 5;
-        gbc.gridwidth = 3;
-        inputPanel.add(toggleThemeButton, gbc);
-
         return inputPanel;
     }
 
@@ -229,34 +222,6 @@ public class main {
                 outputArea.append("Error reading seeds from file: " + ex.getMessage() + "\n");
             }
         }
-    }
-
-    private static void toggleTheme() {
-        darkMode = !darkMode;
-        applyTheme();
-    }
-
-    private static void applyTheme() {
-        if (darkMode) {
-            UIManager.put("Panel.background", Color.DARK_GRAY);
-            UIManager.put("Label.foreground", Color.WHITE);
-            UIManager.put("TextField.background", Color.BLACK);
-            UIManager.put("TextField.foreground", Color.WHITE);
-            UIManager.put("TextArea.background", Color.BLACK);
-            UIManager.put("TextArea.foreground", Color.WHITE);
-            UIManager.put("Button.background", Color.LIGHT_GRAY);
-            UIManager.put("Button.foreground", Color.BLACK);
-        } else {
-            UIManager.put("Panel.background", Color.LIGHT_GRAY);
-            UIManager.put("Label.foreground", Color.BLACK);
-            UIManager.put("TextField.background", Color.WHITE);
-            UIManager.put("TextField.foreground", Color.BLACK);
-            UIManager.put("TextArea.background", Color.WHITE);
-            UIManager.put("TextArea.foreground", Color.BLACK);
-            UIManager.put("Button.background", Color.LIGHT_GRAY);
-            UIManager.put("Button.foreground", Color.BLACK);
-        }
-        SwingUtilities.updateComponentTreeUI(filePathField.getParent());
     }
 
     private static void setUIFont(Font font) {
