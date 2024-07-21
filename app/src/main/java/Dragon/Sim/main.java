@@ -136,6 +136,11 @@ public class main {
             }
         }
 
+        if (running) {
+            outputArea.append("Simulation is already running.\n");
+            return;
+        }
+
         running = true;
         SwingWorker<Void, String> worker = new SwingWorker<>() {
             @Override
@@ -190,12 +195,21 @@ public class main {
                     outputArea.append(message + "\n");
                 }
             }
+
+            @Override
+            protected void done() {
+                running = false;
+            }
         };
 
         worker.execute();
     }
 
     private static void stopSimulation() {
+        if (!running) {
+            outputArea.append("No simulation is currently running.\n");
+            return;
+        }
         running = false;
     }
 
@@ -217,7 +231,7 @@ public class main {
             }
         }
     }
-    
+
     private static void setUIFont(Font font) {
         UIManager.put("Label.font", font);
         UIManager.put("Button.font", font);
