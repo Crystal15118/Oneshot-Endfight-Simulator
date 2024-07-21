@@ -22,33 +22,30 @@ public class main {
     private static volatile boolean running = false;
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame("Dragon Simulation");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(800, 600);
+        JFrame frame = new JFrame("Dragon Simulation");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(800, 600);
 
-            JPanel root = new JPanel(new BorderLayout(10, 10));
-            root.setBorder(new EmptyBorder(10, 10, 10, 10));
-            frame.setContentPane(root);
+        JPanel root = new JPanel(new BorderLayout(10, 10));
+        root.setBorder(new EmptyBorder(10, 10, 10, 10));
+        frame.setContentPane(root);
 
-            JPanel inputPanel = createInputPanel();
-            root.add(inputPanel, BorderLayout.NORTH);
+        JPanel inputPanel = createInputPanel();
+        root.add(inputPanel, BorderLayout.NORTH);
 
-            outputArea = new JTextArea();
-            outputArea.setEditable(false);
-            outputArea.setMargin(new Insets(10, 10, 10, 10));
-            JScrollPane outputScrollPane = new JScrollPane(outputArea);
-            root.add(outputScrollPane, BorderLayout.CENTER);
+        outputArea = new JTextArea();
+        outputArea.setEditable(false);
+        outputArea.setMargin(new Insets(10, 10, 10, 10));
+        JScrollPane outputScrollPane = new JScrollPane(outputArea);
+        root.add(outputScrollPane, BorderLayout.CENTER);
 
-            setUIFont(new Font("Arial", Font.PLAIN, 14));
+        setUIFont(new Font("Arial", Font.PLAIN, 14));
 
-            frame.setVisible(true);
-        });
+        frame.setVisible(true);
     }
 
     private static JPanel createInputPanel() {
-        JPanel inputPanel = new JPanel();
-        inputPanel.setLayout(new GridBagLayout());
+        JPanel inputPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -56,9 +53,10 @@ public class main {
         JLabel filePathLabel = new JLabel("File Path:");
         gbc.gridx = 0;
         gbc.gridy = 0;
+        gbc.gridwidth = 1;
         inputPanel.add(filePathLabel, gbc);
 
-        filePathField = new JTextField(System.getProperty("user.home") + "\\New folder\\SSGOneShotPerchData.csv");
+        filePathField = new JTextField(System.getProperty("user.home") + File.separator + "New folder" + File.separator + "SSGOneShotPerchData.csv");
         gbc.gridx = 1;
         gbc.gridy = 0;
         gbc.gridwidth = 2;
@@ -116,7 +114,12 @@ public class main {
     }
 
     private static void runSimulation() {
-        System.out.println("Start button pressed, initiating simulation"); // Debug statement
+        if (running) {
+            outputArea.append("Simulation is already running.\n");
+            return;
+        }
+
+        outputArea.append("Starting simulation...\n");
 
         String filePath = filePathField.getText();
         int numSims;
@@ -138,54 +141,47 @@ public class main {
             }
         }
 
-        if (running) {
-            outputArea.append("Simulation is already running.\n");
-            return;
-        }
-
         running = true;
         SwingWorker<Void, String> worker = new SwingWorker<>() {
             @Override
             protected Void doInBackground() {
-                System.out.println("Simulation worker started"); // Debug statement
                 try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(filePath)))) {
                     int[][] bedData = new int[seeds.size()][1401];
 
                     for (int seedNum = 0; seedNum < seeds.size() && running; ++seedNum) {
-                        DragonFightManager dragonFight = new DragonFightManager(seeds.get(seedNum));
-                        DragonFightManager.world.put(DragonFightManager.preHash(new BlockPos(0, dragonFight.fountainHeight, 0)), Blocks.OBSIDIAN);
-                        for (int count = 0; count < numSims && running; ++count) {
-                            EnderDragonEntity dragon = dragonFight.createNewDragon();
-                            int tick = 20;
-                            while (!dragon.getPhaseManager().getCurrentPhase().getType().equals(PhaseType.TAKEOFF)) {
-                                dragon.livingTick();
-                                ++tick;
+                        try {
+                            DragonFightManager dragonFight = new DragonFightManager(seeds.get(seedNum));
+                            DragonFightManager.world.put(DragonFightManager.preHash(new BlockPos(0, dragonFight.fountainHeight, 0)), Blocks.OBSIDIAN);
+                            for (int count = 0; count < numSims && running; ++count) {
+                                EnderDragonEntity dragon = dragonFight.createNewDragon();
+                                int tick = 20;
+                                while (!dragon.getPhaseManager().getCurrentPhase().getType().equals(PhaseType.TAKEOFF)) {
+                                    dragon.livingTick();
+                                    ++tick;
+                                }
+                                ++bedData[seedNum][tick + 202];
                             }
-                            ++bedData[seedNum][tick + 202];
+                        } catch (Exception e) {
+                            publish("Error during simulation for seed " + seeds.get(seedNum) + ": " + e.getMessage());
+                            e.printStackTrace();
                         }
                     }
 
                     for (int ss = 48; ss < 67; ++ss) {
                         for (int cs = 0; cs < 100; cs += 5) {
-                            if (ss < 10) {
-                                out.print(0);
-                            }
-                            out.print(ss + ".");
-                            if (cs < 10) {
-                                out.print(0);
-                            }
-                            out.print(cs + ",");
+                            out.printf("%02d.%02d,", ss, cs);
                         }
                     }
                     out.println("67.00");
                     for (int seedNum = 0; seedNum < seeds.size(); ++seedNum) {
                         for (int tick = 960; tick <= 1340; ++tick) {
-                            out.print(bedData[seedNum][tick] / (double) numSims + ",");
+                            out.printf("%f,", bedData[seedNum][tick] / (double) numSims);
                         }
                         out.println();
                     }
                 } catch (IOException e) {
-                    publish("Error: " + e.getMessage());
+                    publish("Error writing to file: " + e.getMessage());
+                    e.printStackTrace();
                 }
 
                 publish("Simulation complete. Data saved to " + filePath);
@@ -202,7 +198,7 @@ public class main {
             @Override
             protected void done() {
                 running = false;
-                System.out.println("Simulation worker done"); // Debug statement
+                outputArea.append("Simulation finished.\n");
             }
         };
 
@@ -215,6 +211,7 @@ public class main {
             return;
         }
         running = false;
+        outputArea.append("Stopping simulation...\n");
     }
 
     private static void loadSeeds() {
