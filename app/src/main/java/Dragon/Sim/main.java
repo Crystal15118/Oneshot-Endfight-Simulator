@@ -116,6 +116,8 @@ public class main {
     }
 
     private static void runSimulation() {
+        System.out.println("Start button pressed, initiating simulation"); // Debug statement
+
         String filePath = filePathField.getText();
         int numSims;
         try {
@@ -145,6 +147,7 @@ public class main {
         SwingWorker<Void, String> worker = new SwingWorker<>() {
             @Override
             protected Void doInBackground() {
+                System.out.println("Simulation worker started"); // Debug statement
                 try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(filePath)))) {
                     int[][] bedData = new int[seeds.size()][1401];
 
@@ -199,6 +202,7 @@ public class main {
             @Override
             protected void done() {
                 running = false;
+                System.out.println("Simulation worker done"); // Debug statement
             }
         };
 
