@@ -21,6 +21,8 @@ public class main {
     private static JTextArea seedArea;
     private static volatile boolean running = false;
 
+    private static final int TICK_BUFFER = 300;  // Buffer size to handle ticks beyond expected range
+
     public static void main(String[] args) {
         JFrame frame = new JFrame("Dragon Simulation");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -146,7 +148,9 @@ public class main {
             @Override
             protected Void doInBackground() {
                 try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(filePath)))) {
-                    int[][] bedData = new int[seeds.size()][1401];
+                    // Increase array size to accommodate larger tick values
+                    int arraySize = 1600 + TICK_BUFFER;  // Adjust this size based on your needs
+                    int[][] bedData = new int[seeds.size()][arraySize];
 
                     for (int seedNum = 0; seedNum < seeds.size() && running; ++seedNum) {
                         try {
@@ -159,7 +163,12 @@ public class main {
                                     dragon.livingTick();
                                     ++tick;
                                 }
-                                ++bedData[seedNum][tick + 202];
+                                // Ensure tick + 202 does not exceed array bounds
+                                if (tick + 202 < bedData[seedNum].length) {
+                                    ++bedData[seedNum][tick + 202];
+                                } else {
+                                    publish("Warning: Tick index " + (tick + 202) + " out of bounds.");
+                                }
                             }
                         } catch (Exception e) {
                             publish("Error during simulation for seed " + seeds.get(seedNum) + ": " + e.getMessage());
@@ -167,6 +176,7 @@ public class main {
                         }
                     }
 
+                    // Write data to file
                     for (int ss = 48; ss < 67; ++ss) {
                         for (int cs = 0; cs < 100; cs += 5) {
                             out.printf("%02d.%02d,", ss, cs);
@@ -175,7 +185,11 @@ public class main {
                     out.println("67.00");
                     for (int seedNum = 0; seedNum < seeds.size(); ++seedNum) {
                         for (int tick = 960; tick <= 1340; ++tick) {
-                            out.printf("%f,", bedData[seedNum][tick] / (double) numSims);
+                            if (tick < bedData[seedNum].length) {
+                                out.printf("%f,", bedData[seedNum][tick] / (double) numSims);
+                            } else {
+                                out.print("0,");  // Default value if out of bounds
+                            }
                         }
                         out.println();
                     }
@@ -227,8 +241,9 @@ public class main {
                     seeds.append(line).append(",");
                 }
                 seedArea.setText(seeds.toString());
-            } catch (IOException ex) {
-                outputArea.append("Error reading seeds from file: " + ex.getMessage() + "\n");
+            } catch (IOException e) {
+                outputArea.append("Error loading seeds from file: " + e.getMessage() + "\n");
+                e.printStackTrace();
             }
         }
     }
@@ -238,5 +253,7 @@ public class main {
         UIManager.put("Button.font", font);
         UIManager.put("TextField.font", font);
         UIManager.put("TextArea.font", font);
+        UIManager.put("TextPane.font", font);
+        UIManager.put("EditorPane.font", font);
     }
 }
