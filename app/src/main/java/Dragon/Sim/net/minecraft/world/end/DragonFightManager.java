@@ -7,11 +7,14 @@ import Dragon.Sim.net.minecraft.util.math.BlockPos;
 import Dragon.Sim.net.minecraft.util.math.MathHelper;
 import kaptainwutax.biomeutils.source.EndBiomeSource;
 import kaptainwutax.mcutils.block.Block;
+import kaptainwutax.mcutils.block.Blocks;
 import kaptainwutax.mcutils.version.MCVersion;
 import kaptainwutax.terrainutils.terrain.EndTerrainGenerator;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
+import java.util.Map.Entry;
 
 public class DragonFightManager {
 
@@ -21,37 +24,49 @@ public class DragonFightManager {
    private EndBiomeSource biomeSource;
    private EndTerrainGenerator terrainGen;
    private EndSpikeFeature spikeFeature;
-   private int frontTower = 80;
-   private int backTower = 100;
+   private int frontTower;
+   private int backTower;
    public int fountainHeight;
    public final PathPoint[] pathPoints = new PathPoint[24];
    public final int[] neighbors = new int[24];
    public static HashMap<Integer, Block> world;
 
    public static int preHash(BlockPos pos) {
-      return (pos.getX()+512)<<20 | (pos.getY()+512)<<10 | (pos.getZ()+512);
+      return (pos.getX() + 512) << 20 | (pos.getY() + 512) << 10 | (pos.getZ() + 512);
    }
 
    public DragonFightManager(long seedIn) {
-      if (seedIn == -6405782700478242821L) {
-         frontTower = 80;
-         backTower = 100;
-      }
-      else {
-         frontTower = 100;
-         backTower = 80;
-      }
       world = new HashMap<>();
       seed = seedIn;
       biomeSource = new EndBiomeSource(MCVersion.v1_16_1, seed);
       terrainGen = new EndTerrainGenerator(biomeSource);
-      fountainHeight = terrainGen.getHeightOnGround(0,0) + 3;
+      fountainHeight = terrainGen.getHeightOnGround(0, 0) + 3;
       spikeFeature = new EndSpikeFeature();
       spikeFeature.genPillars(seed);
+
+      // Determine front and back tower heights dynamically
+      frontTower = getTowerHeight(40, 0);
+      backTower = getTowerHeight(-40, 0);
+
       this.initPathPoints();
    }
 
-   public void updateCrystals(){
+   private int getTowerHeight(int x, int z) {
+      int maxY = -1;
+      for (int y = 255; y >= 0; --y) {
+         BlockPos pos = new BlockPos(x, y, z);
+         if (world.containsKey(preHash(pos))) {
+            Block block = world.get(preHash(pos));
+            if (block != Blocks.AIR) {
+               maxY = y;
+               break;
+            }
+         }
+      }
+      return maxY;
+   }
+
+   public void updateCrystals() {
       aliveCrystals = 10;
    }
 
@@ -61,7 +76,6 @@ public class DragonFightManager {
 
    public EnderDragonEntity createNewDragonWithAngle(float angle) {
       this.angle = angle;
-//      this.initPathPoints();
       EnderDragonEntity enderdragonentity = new EnderDragonEntity();
       enderdragonentity.setFightManager(this);
       enderdragonentity.getPhaseManager().setPhase(PhaseType.HOLDING_PATTERN);
@@ -69,22 +83,19 @@ public class DragonFightManager {
       return enderdragonentity;
    }
 
-   public int getHeight(int x, int z){
-      if (z==0){
-         if (x==0){
+   public int getHeight(int x, int z) {
+      if (z == 0) {
+         if (x == 0) {
             return fountainHeight;
          }
-         if (x==40){
+         if (x == 40) {
             return frontTower;
          }
-         if (x==-40){
+         if (x == -40) {
             return backTower;
          }
       }
-      /*if (x==28){
-         return 10;
-      }*/
-      return terrainGen == null ? 58 : terrainGen.getHeightOnGround(x,z);
+      return terrainGen == null ? 58 : terrainGen.getHeightOnGround(x, z);
    }
 
    public int getNumAliveCrystals() {
@@ -93,22 +104,22 @@ public class DragonFightManager {
 
    private void initPathPoints() {
       if (this.pathPoints[0] == null) {
-         for(int i = 0; i < 24; ++i) {
+         for (int i = 0; i < 24; ++i) {
             int j = 5;
             int l;
             int i1;
             if (i < 12) {
-               l = MathHelper.floor(60.0F * MathHelper.cos(2.0F * (-(float)Math.PI + 0.2617994F * (float)i)));
-               i1 = MathHelper.floor(60.0F * MathHelper.sin(2.0F * (-(float)Math.PI + 0.2617994F * (float)i)));
+               l = MathHelper.floor(60.0F * MathHelper.cos(2.0F * (-(float) Math.PI + 0.2617994F * (float) i)));
+               i1 = MathHelper.floor(60.0F * MathHelper.sin(2.0F * (-(float) Math.PI + 0.2617994F * (float) i)));
             } else if (i < 20) {
                int lvt_3_1_ = i - 12;
-               l = MathHelper.floor(40.0F * MathHelper.cos(2.0F * (-(float)Math.PI + ((float)Math.PI / 8F) * (float)lvt_3_1_)));
-               i1 = MathHelper.floor(40.0F * MathHelper.sin(2.0F * (-(float)Math.PI + ((float)Math.PI / 8F) * (float)lvt_3_1_)));
+               l = MathHelper.floor(40.0F * MathHelper.cos(2.0F * (-(float) Math.PI + ((float) Math.PI / 8F) * (float) lvt_3_1_)));
+               i1 = MathHelper.floor(40.0F * MathHelper.sin(2.0F * (-(float) Math.PI + ((float) Math.PI / 8F) * (float) lvt_3_1_)));
                j += 10;
             } else {
                int k1 = i - 20;
-               l = MathHelper.floor(20.0F * MathHelper.cos(2.0F * (-(float)Math.PI + ((float)Math.PI / 4F) * (float)k1)));
-               i1 = MathHelper.floor(20.0F * MathHelper.sin(2.0F * (-(float)Math.PI + ((float)Math.PI / 4F) * (float)k1)));
+               l = MathHelper.floor(20.0F * MathHelper.cos(2.0F * (-(float) Math.PI + ((float) Math.PI / 4F) * (float) k1)));
+               i1 = MathHelper.floor(20.0F * MathHelper.sin(2.0F * (-(float) Math.PI + ((float) Math.PI / 4F) * (float) k1)));
             }
 
             int j1 = Math.max(73, this.getHeight(l, i1) + j);
