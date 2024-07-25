@@ -12,9 +12,8 @@ import kaptainwutax.mcutils.version.MCVersion;
 import kaptainwutax.terrainutils.terrain.EndTerrainGenerator;
 
 import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
 import java.util.Random;
-import java.util.Map.Entry;
 
 public class DragonFightManager {
 
