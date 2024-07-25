@@ -148,9 +148,12 @@ public class main {
             @Override
             protected Void doInBackground() {
                 try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(filePath)))) {
-                    // Increase array size to accommodate larger tick values
                     int arraySize = 1600 + TICK_BUFFER;  // Adjust this size based on your needs
                     int[][] bedData = new int[seeds.size()][arraySize];
+
+                    int totalSimulations = seeds.size() * numSims;
+                    int progressInterval = totalSimulations / 20;  // 5% increment for progress updates
+                    int simulationsCompleted = 0;
 
                     for (int seedNum = 0; seedNum < seeds.size() && running; ++seedNum) {
                         try {
@@ -163,11 +166,18 @@ public class main {
                                     dragon.livingTick();
                                     ++tick;
                                 }
-                                // Ensure tick + 202 does not exceed array bounds
                                 if (tick + 202 < bedData[seedNum].length) {
                                     ++bedData[seedNum][tick + 202];
                                 } else {
                                     publish("Warning: Tick index " + (tick + 202) + " out of bounds.");
+                                }
+
+                                // Update progress
+                                simulationsCompleted++;
+                                if (simulationsCompleted % progressInterval == 0) {
+                                    int percentCompleted = (int) ((double) simulationsCompleted / totalSimulations * 100);
+                                    int simulationsLeft = totalSimulations - simulationsCompleted;
+                                    publish(String.format("%d%% of the total number of simulations have been completed (%d simulations still left to complete)", percentCompleted, simulationsLeft));
                                 }
                             }
                         } catch (Exception e) {
@@ -177,14 +187,14 @@ public class main {
                     }
 
                     // Write data to file
-                    for (int ss = 48; ss < 67; ++ss) {
+                    for (int ss = 30; ss < 67; ++ss) { // Adjusted loop to start from 30 instead of 48
                         for (int cs = 0; cs < 100; cs += 5) {
                             out.printf("%02d.%02d,", ss, cs);
                         }
                     }
                     out.println("67.00");
                     for (int seedNum = 0; seedNum < seeds.size(); ++seedNum) {
-                        for (int tick = 960; tick <= 1340; ++tick) {
+                        for (int tick = 600; tick <= 1340; ++tick) { // Adjusted start tick to 600 to cover the range for 30 seconds
                             if (tick < bedData[seedNum].length) {
                                 out.printf("%f,", bedData[seedNum][tick] / (double) numSims);
                             } else {
