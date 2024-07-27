@@ -10,4 +10,7 @@ Download the latest release, run the .jar file, setup your conditions for the si
 It is highly recommended to use jre/jdk 21 because other versions may or may not work for the program.
 
 ## Can be used for
-Finding the fastest endfight anyone can get using oneshot on a big list of seeds.
+Finding the fastest endfight anyone can get using oneshot on a seed or a big list of seeds.
+
+## Support Server
+If you have any questions, feedback, suggestions or need help with setting up the simulator, join the [discord server](https://discord.gg/c7zQkd2bcy).
