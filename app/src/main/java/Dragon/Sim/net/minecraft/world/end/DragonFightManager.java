@@ -12,44 +12,47 @@ import kaptainwutax.mcutils.version.MCVersion;
 import kaptainwutax.terrainutils.terrain.EndTerrainGenerator;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 
 public class DragonFightManager {
 
-   public float angle;
-   private int aliveCrystals;
-   private long seed;
-   private EndBiomeSource biomeSource;
-   private EndTerrainGenerator terrainGen;
-   private EndSpikeFeature spikeFeature;
-   private int frontTower;
-   private int backTower;
-   public int fountainHeight;
-   public final PathPoint[] pathPoints = new PathPoint[24];
-   public final int[] neighbors = new int[24];
-   public static HashMap<Integer, Block> world;
+   public float angle; // Angle for the dragon's flight
+   private int AliveCrystals; // Number of alive end crystals
+   private long seed; // Seed for terrain and biome generation
+   private EndBiomeSource BiomeSource; // Biome source for the End dimension
+   private EndTerrainGenerator TerrainGen; // Terrain generator for the End dimension
+   private EndSpikeFeature SpikeFeature; // Feature for generating end spikes
+   private int FrontTowerHeight; // Height of the front tower
+   private int BackTowerHeight; // Height of the back tower
+   public int FountainHeight; // Height of the central fountain
+   public final PathPoint[] pathPoints = new PathPoint[24]; // Path points for dragon navigation
+   public final int[] neighbors = new int[24]; // Neighbors array for pathfinding
+   public static HashMap<Integer, Block> world; // Simulated world state
 
+   // Utility method to hash block positions for the simulated world map
    public static int preHash(BlockPos pos) {
       return (pos.getX() + 512) << 20 | (pos.getY() + 512) << 10 | (pos.getZ() + 512);
    }
 
+   // Constructor to initialize the DragonFightManager with a given seed
    public DragonFightManager(long seedIn) {
       world = new HashMap<>();
       seed = seedIn;
-      biomeSource = new EndBiomeSource(MCVersion.v1_16_1, seed);
-      terrainGen = new EndTerrainGenerator(biomeSource);
-      fountainHeight = terrainGen.getHeightOnGround(0, 0) + 3;
-      spikeFeature = new EndSpikeFeature();
-      spikeFeature.genPillars(seed);
+      BiomeSource = new EndBiomeSource(MCVersion.v1_16_1, seed);
+      TerrainGen = new EndTerrainGenerator(BiomeSource);
+      FountainHeight = TerrainGen.getHeightOnGround(0, 0) + 3;
+      SpikeFeature = new EndSpikeFeature();
+      SpikeFeature.genPillars(seed);
 
       // Determine front and back tower heights dynamically
-      frontTower = getTowerHeight(40, 0);
-      backTower = getTowerHeight(-40, 0);
+      FrontTowerHeight = getTowerHeight(40, 0);
+      BackTowerHeight = getTowerHeight(-40, 0);
 
+      // Initialize path points for dragon navigation
       this.initPathPoints();
    }
 
+   // Method to get the height of towers (in this case, we need it for front and back tower specifically)
    private int getTowerHeight(int x, int z) {
       int maxY = -1;
       for (int y = 255; y >= 0; --y) {
@@ -65,14 +68,17 @@ public class DragonFightManager {
       return maxY;
    }
 
+   // Method to update the number of alive end crystals
    public void updateCrystals() {
-      aliveCrystals = 10;
+      AliveCrystals = 10;
    }
 
+   // Method to create a new EnderDragonEntity with a random angle
    public EnderDragonEntity createNewDragon() {
       return this.createNewDragonWithAngle((new Random()).nextFloat() * 360.0F);
    }
 
+   // Method to create a new EnderDragonEntity with a specific angle
    public EnderDragonEntity createNewDragonWithAngle(float angle) {
       this.angle = angle;
       EnderDragonEntity enderdragonentity = new EnderDragonEntity();
@@ -82,25 +88,28 @@ public class DragonFightManager {
       return enderdragonentity;
    }
 
+   // Method to get the height of a block at specific x and z coordinates
    public int getHeight(int x, int z) {
       if (z == 0) {
          if (x == 0) {
-            return fountainHeight;
+            return FountainHeight;
          }
          if (x == 40) {
-            return frontTower;
+            return FrontTowerHeight;
          }
          if (x == -40) {
-            return backTower;
+            return BackTowerHeight;
          }
       }
-      return terrainGen == null ? 58 : terrainGen.getHeightOnGround(x, z);
+      return TerrainGen == null ? 58 : TerrainGen.getHeightOnGround(x, z);
    }
 
+   // Method to get the number of alive end crystals
    public int getNumAliveCrystals() {
-      return this.aliveCrystals;
+      return this.AliveCrystals;
    }
 
+   // Method to initialize path points for dragon navigation
    private void initPathPoints() {
       if (this.pathPoints[0] == null) {
          for (int i = 0; i < 24; ++i) {
@@ -125,6 +134,7 @@ public class DragonFightManager {
             this.pathPoints[i] = new PathPoint(l, j1, i1);
          }
 
+         // Initialize neighbors for pathfinding
          this.neighbors[0] = 6146;
          this.neighbors[1] = 8197;
          this.neighbors[2] = 8202;
