@@ -16,7 +16,7 @@ import java.util.List;
 
 public class main {
 
-    // GUI Components
+    // GUI Components for the app
     private static JTextArea outputArea;
     private static JTextField filePathField, numSimsField;
     private static JTextArea seedArea;
@@ -47,10 +47,9 @@ public class main {
         JScrollPane outputScrollPane = new JScrollPane(outputArea);
         root.add(outputScrollPane, BorderLayout.CENTER);
 
-        // Set font for UI components
+        // Set font for the components of the UI
         setUIFont(new Font("Arial", Font.PLAIN, 14));
 
-        // Make the frame visible
         frame.setVisible(true);
     }
 
@@ -87,7 +86,7 @@ public class main {
         gbc.gridwidth = 2;
         inputPanel.add(numSimsField, gbc);
 
-        // Label for Seeds and text area for seeds
+        // Label for seeds and text area for seeds
         JLabel seedLabel = new JLabel("Seeds (comma separated) or Load from File:");
         gbc.gridx = 0;
         gbc.gridy = 2;
@@ -103,7 +102,7 @@ public class main {
         gbc.gridwidth = 3;
         inputPanel.add(seedScrollPane, gbc);
 
-        // Buttons for loading seeds, starting, and stopping simulations
+        // Buttons for loading seeds, starting, and stopping the number of simulations
         JButton loadSeedsButton = new JButton("Load Seeds from CSV");
         loadSeedsButton.addActionListener(e -> loadSeeds());
         gbc.gridx = 0;
@@ -130,7 +129,6 @@ public class main {
 
     // Method to start the simulation
     private static void runSimulation() {
-        // Check if simulation is already running
         if (running) {
             outputArea.append("Simulation is already running.\n");
             return;
@@ -140,7 +138,7 @@ public class main {
 
         String filePath = filePathField.getText();
         int numSims;
-        // Validate and parse the number of simulations
+        // Try to validate and parse the number of simulations
         try {
             numSims = Integer.parseInt(numSimsField.getText());
         } catch (NumberFormatException e) {
@@ -149,7 +147,7 @@ public class main {
         }
 
         List<Long> seeds = new ArrayList<>();
-        // Parse the seeds from the input text area
+        // Parse seeds from input text area
         String[] seedStrings = seedArea.getText().split(",");
         for (String seedStr : seedStrings) {
             try {
@@ -192,7 +190,7 @@ public class main {
                                     publish("Warning: Tick index " + (tick + 202) + " out of bounds.");
                                 }
 
-                                // Update progress
+                                // Update the user with the progress of the simulator
                                 simulationsCompleted++;
                                 if (simulationsCompleted % progressInterval == 0) {
                                     int percentCompleted = (int) ((double) simulationsCompleted / totalSimulations * 100);
@@ -206,7 +204,7 @@ public class main {
                         }
                     }
 
-                    // Write the results to the output file
+                    // Write results to the output file
                     for (int ss = 30; ss < 67; ++ss) {
                         for (int cs = 0; cs < 100; cs += 5) {
                             out.printf("%02d.%02d,", ss, cs);
@@ -218,13 +216,13 @@ public class main {
                             if (tick < bedData[seedNum].length) {
                                 out.printf("%f,", bedData[seedNum][tick] / (double) numSims);
                             } else {
-                                out.print("0,");  // Default value if out of bounds
+                                out.print("0,");  // Default value, if out of bounds
                             }
                         }
                         out.println();
                     }
 
-                    // Indicate that the simulation is complete and the data has been saved
+                    // Output that the simulator has completed the given number of simulations and the data has been saved
                     publish("Simulation complete. Data saved to " + filePath);
                 } catch (IOException e) {
                     publish("Error saving data to file: " + e.getMessage());
@@ -243,7 +241,6 @@ public class main {
 
             @Override
             protected void done() {
-                // Mark the simulation as finished and update the output area
                 running = false;
                 outputArea.append("Simulation finished.\n");
             }
@@ -253,21 +250,19 @@ public class main {
         worker.execute();
     }
 
-    // Method to stop the currently running simulation
+    // Method to stop simulations that are currently running
     private static void stopSimulation() {
-        // Check if there is a running simulation to stop
         if (!running) {
             outputArea.append("No simulation is currently running.\n");
             return;
         }
-        // Set the running flag to false in order to stop the simulation
         running = false;
         outputArea.append("Stopping simulation...\n");
     }
 
     // Method to load seeds from a CSV file
     private static void loadSeeds() {
-        // Create a file chooser for selecting the CSV file
+        // Create a file chooser for selecting a CSV file
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setFileFilter(new FileNameExtensionFilter("CSV Files", "csv"));
         int returnValue = fileChooser.showOpenDialog(null);
@@ -280,10 +275,9 @@ public class main {
                 while ((line = br.readLine()) != null) {
                     seeds.append(line).append(",");
                 }
-                // Set the loaded seeds to the text area for seeds
+                // Put the loaded seeds in the text area for seeds
                 seedArea.setText(seeds.toString());
             } catch (IOException e) {
-                // Handle any I/O exceptions that occur during file reading
                 outputArea.append("Error loading seeds from file: " + e.getMessage() + "\n");
                 e.printStackTrace();
             }

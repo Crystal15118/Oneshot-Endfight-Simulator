@@ -34,7 +34,7 @@ public class DragonFightManager {
       return (pos.getX() + 512) << 20 | (pos.getY() + 512) << 10 | (pos.getZ() + 512);
    }
 
-   // Constructor to initialize the DragonFightManager with a given seed
+   // Initialize the DragonFightManager with a given seed
    public DragonFightManager(long seedIn) {
       world = new HashMap<>();
       seed = seedIn;
@@ -44,7 +44,7 @@ public class DragonFightManager {
       SpikeFeature = new EndSpikeFeature();
       SpikeFeature.genPillars(seed);
 
-      // Determine front and back tower heights dynamically
+      // Determine front and back tower heights
       FrontTowerHeight = getTowerHeight(40, 0);
       BackTowerHeight = getTowerHeight(-40, 0);
 
@@ -52,7 +52,7 @@ public class DragonFightManager {
       this.initPathPoints();
    }
 
-   // Method to get the height of towers (in this case, we need it for front and back tower specifically)
+   // Method to get the height of towers (in this case, we need it for the front and back tower)
    private int getTowerHeight(int x, int z) {
       int maxY = -1;
       for (int y = 255; y >= 0; --y) {
@@ -68,17 +68,16 @@ public class DragonFightManager {
       return maxY;
    }
 
-   // Method to update the number of alive end crystals
    public void updateCrystals() {
       AliveCrystals = 10;
    }
 
-   // Method to create a new EnderDragonEntity with a random angle
+   // Method to create a new Ender Dragon with a random angle
    public EnderDragonEntity createNewDragon() {
       return this.createNewDragonWithAngle((new Random()).nextFloat() * 360.0F);
    }
 
-   // Method to create a new EnderDragonEntity with a specific angle
+   // Method to create a new Ender Dragon with a specific angle
    public EnderDragonEntity createNewDragonWithAngle(float angle) {
       this.angle = angle;
       EnderDragonEntity enderdragonentity = new EnderDragonEntity();
@@ -104,7 +103,6 @@ public class DragonFightManager {
       return TerrainGen == null ? 58 : TerrainGen.getHeightOnGround(x, z);
    }
 
-   // Method to get the number of alive end crystals
    public int getNumAliveCrystals() {
       return this.AliveCrystals;
    }
