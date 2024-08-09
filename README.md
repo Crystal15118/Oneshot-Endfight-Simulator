@@ -12,5 +12,8 @@ It is highly recommended to use jre/jdk 21 because other versions may or may not
 ## Can be used for
 Finding the fastest endfight anyone can get using oneshot on a seed or a big list of seeds.
 
+## Where do i get Onecycle Endfight Simulator?
+You can get it from [here](https://github.com/Crystal15118/Onecycle-Endfight-Simulator)
+
 ## Support Server
 If you have any questions, feedback, suggestions or need help with setting up the simulator, join the [discord server](https://discord.gg/c7zQkd2bcy).
