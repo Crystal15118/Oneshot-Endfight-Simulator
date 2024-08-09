@@ -27,7 +27,7 @@ public class main {
 
     public static void main(String[] args) {
         // Initialize the main frame
-        JFrame frame = new JFrame("Dragon Simulation");
+        JFrame frame = new JFrame("Oneshot Endfight Simulator");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 600);
 
